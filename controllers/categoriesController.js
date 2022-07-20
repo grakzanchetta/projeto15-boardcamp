@@ -21,6 +21,4 @@ export async function getCategories (request, response){
     } catch (error) {
         response.sendStatus(500)
     }
-    
-
 }
