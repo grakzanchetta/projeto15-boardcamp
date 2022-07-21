@@ -1,6 +1,6 @@
 import database from '../dbstrategy/postgres.js';
 
-export async function postCategories (request, response){
+export async function postCategory (request, response){
     const { name } = request.body;
     try {
         const categoryExists = await database.query('SELECT id FROM categories WHERE name=$1', [name]);
