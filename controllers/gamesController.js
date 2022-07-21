@@ -11,7 +11,7 @@ export async function postGame (request, response){
         if(gameExists.rowCount > 0){
             return response.sendStatus(409);
         }
-        await database.query(`INSERT INTO games(name, image, "stockTotal", "categoryId","pricePerDay") VALUES ($1, $2, $3, $4, $5);`, 
+        await database.query('INSERT INTO games(name, image, "stockTotal", "categoryId","pricePerDay") VALUES ($1, $2, $3, $4, $5)', 
         [name, image, Number(stockTotal), categoryId, Number(pricePerDay)]);
         response.sendStatus(201);
     } catch (error) {

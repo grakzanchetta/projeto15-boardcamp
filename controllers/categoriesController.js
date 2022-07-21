@@ -15,5 +15,10 @@ export async function postCategory (request, response){
 }
 
 export async function getCategories (request, response){
-   
+    try {
+        const result = await database.query('SELECT * FROM categories');
+        response.send(result.rows)
+    } catch (error) {
+        response.sendStatus(500)
+    }
 }
