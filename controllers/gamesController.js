@@ -20,4 +20,10 @@ export async function postGame (request, response){
 }
 
 export async function getGames (request, response){
+    try {
+        const result = await database.query('SELECT * FROM games');
+        response.send(result.rows)
+    } catch (error) {
+        response.sendStatus(500)
+    }
 }
