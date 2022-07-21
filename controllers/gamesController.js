@@ -18,3 +18,6 @@ export async function postGame (request, response){
         response.sendStatus(500);
     }
 }
+
+export async function getGames (request, response){
+}
