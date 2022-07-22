@@ -28,12 +28,12 @@ export async function getGames(request, response) {
     
         if (name) {
           parameters.push(`${name}%`);
-          searchGame += `WHERE games.name ILIKE $${parameters.length}`;
+          searchGame = `WHERE games.name ILIKE $${parameters.length}`;
         }    
 
         const result = await database.query(`SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id ${searchGame}`, parameters );
         response.send(result.rows)
     } catch (error) {
-        response.sendStatus(500)
+        response.status(500).send(error.message)
     }
 }

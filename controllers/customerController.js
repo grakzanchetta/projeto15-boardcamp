@@ -1,3 +1,4 @@
+import { response } from 'express';
 import database from '../dbstrategy/postgres.js';
 
 export async function postCustomer (request, response){
@@ -35,10 +36,36 @@ export async function updateCustomer (request, response){
 }
 
 export async function getCustomers (request, response){
+    const { cpf } = request.query;
+
     try {
-        const result = await database.query('SELECT * FROM customers');
+        const parameters = [];
+        let searchCpf = '';
+
+        if(cpf){
+            parameters.push(`${cpf}%`);
+            searchCpf = `WHERE customers.cpf LIKE $${parameters.length}`
+        }
+        const result = await database.query(`SELECT * FROM customers ${searchCpf}`, parameters);
         response.send(result.rows)
     } catch (error) {
         response.sendStatus(500)
+    }
+}
+
+export async function getCustomerbyId (request, response){
+    const { id } = request.params;
+    if (isNaN(parseInt(id))) {
+        return response.sendStatus(400);
+    }
+    try {
+        const userExists = await database.query('SELECT * FROM customers WHERE id = $1', [id]);
+        if (userExists.rowCount === 0) {
+          return response.sendStatus(404);
+        } else {
+            response.send(userExists.rows);
+        } 
+    } catch (error) {
+        response.sendStatus(500);
     }
 }
