@@ -98,6 +98,37 @@ function createRentList(row) {
     }
   }
 
+export async function finishRental(request, response){
+    const { id } = request.params;
+
+    try {
+        const searchResult = await database.query(`SELECT * FROM rentals WHERE id = $1`, [id]);
+        if (searchResult.rowCount === 0){
+            return response.sendStatus(404);
+        }
+
+        const rental = searchResult.rows[0];
+        if (rental.returnDate){
+            return response.sendStatus(400);
+        } else {
+            const difference = new Date().getTime() - new Date(rental.rentDate).getTime();
+            const differenceInDays = Math.floor(difference / (24 * 3600 * 1000));
+        
+        let delayFee = 0;
+        if (differenceInDays > rental.daysRented){
+            const addicionalDays = differenceInDays - rental.daysRented;
+            delayFee = addicionalDays * rental.originalPrice;
+        };
+
+        await database.query(`UPDATE rentals SET "returnDate" = NOW(), "delayFee" = $1 WHERE id = $2`, [delayFee, id]);
+        }
+        response.sendStatus(200)
+
+    } catch (error) {
+        response.status(500).send(error.message)
+    }
+
+}
 
 
 
