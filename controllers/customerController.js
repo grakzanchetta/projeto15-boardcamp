@@ -1,4 +1,3 @@
-import { response } from 'express';
 import database from '../dbstrategy/postgres.js';
 
 export async function postCustomer (request, response){
