@@ -30,6 +30,74 @@ export async function postRent(request, response) {
     }
   }
 
+export async function getRentals (request, response){
+    const {customerId, gameId} = request.query;
+
+    try {
+        const parameters = [];
+        const searchConditions = [];
+        let searchQuery = '';
+
+        if (customerId){
+            parameters.push(customerId);
+            searchConditions.push(`rentals."customerId" = $${parameters.length}`);
+        }
+
+        if (gameId){
+            parameters.push(gameId);
+            searchConditions.push(`rentals."gameId" = $${parameters.length}`);
+        }
+
+        if (parameters.length > 0){
+            searchQuery += `WHERE ${searchConditions.join("AND")}`
+        }
+
+        const result = await database.query({
+            text: `
+              SELECT 
+                rentals.*,
+                customers.name AS customer,
+                games.name,
+                categories.*
+              FROM rentals
+                JOIN customers ON customers.id=rentals."customerId"
+                JOIN games ON games.id=rentals."gameId"
+                JOIN categories ON categories.id=games."categoryId"
+              ${searchQuery}
+            `,
+            rowMode: "array"
+        }, parameters);
+        response.send(result.rows.map(createRentList));
+    } catch (error) {
+        response.sendStatus(500)
+    }
+}
+
+function createRentList(row) {
+    const [id, customerId, gameId, rentDate, daysRented, returnDate, originalPrice, delayFee, customerName, gameName, categoryId, categoryName] = row;
+  
+    return {
+      id,
+      customerId,
+      gameId,
+      rentDate,
+      daysRented,
+      returnDate,
+      originalPrice,
+      delayFee,
+      customer: {
+        id: customerId,
+        name: customerName
+      },
+      game: {
+        id: gameId,
+        name: gameName,
+        categoryId,
+        categoryName
+      }
+    }
+  }
+
 
 
 
